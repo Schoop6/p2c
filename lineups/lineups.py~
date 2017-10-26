@@ -1,0 +1,48 @@
+import sys
+
+#getting input from user
+
+team = input("What team do you want lineups for?")
+date = input("Enter date (dd/mm/yyyy)") #"today" and "yesterday" will also work
+
+print (team, date)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
