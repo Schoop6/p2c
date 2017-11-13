@@ -1,0 +1,3 @@
+lineups.py requests a team name (aka "Orioles") for input as well as a date and it returns the lineups for that team on that date.
+
+known bugs:  still buggy returning starting lineups if the game involved pinch hitters but this is really intended to be used prior to the start of a game to get the lineups for that game.
