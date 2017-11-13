@@ -2,6 +2,7 @@ import sys
 import re
 import urllib.request
 import urllib.error
+import datetime
 
 
 
@@ -60,7 +61,7 @@ endIndex = html.find("league", startIndex)-10
 html = html[startIndex:endIndex]
 
 gdURL = "http://gd2.mlb.com" + html + "/boxscore.xml"
-print(gdURL)
+
 #connecting to gameday to get the lineup
 try:
     with urllib.request.urlopen(gdURL) as response:
@@ -73,19 +74,18 @@ except urllib.error.HTTPError as err:
     else:
         raise
 
-
-homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
+homeTeam = re.search('home_sname="(\w*|\w* \w* \w*)"', gameday)
 
 if not homeTeam:
     sys.exit("could not find hometeam")
 else:
-    homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday).group(1)
-    
+    homeTeam = re.search('home_sname="(\w*|\w* \w* \w*)"', gameday).group(1)
+
 if homeTeam == cities.get(team):
     gameday = gameday[gameday.find('batting team_flag="home"'):
                       gameday.find('pitching team_flag="home"')]
 else:
-    gameday = gameday[gameday.find('batting team_flag="home"'):]
+    gameday = gameday[gameday.find('batting team_flag="away"'):]
 
 match = re.findall('name_display_first_last="(\w* \w*)"', gameday)
 
