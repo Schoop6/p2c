@@ -1,10 +1,20 @@
+#!/usr/bin/env python3
+
 import sys
 import re
 import urllib.request
 import urllib.error
 import datetime
+from argparse import ArgumentParser
 
 
+#parsing com line args (right now we'll only have one argument which will print out debug statements)
+parser = ArgumentParser()
+parser.add_argument('-d', '--debug',
+                    action = 'store_true',
+                    help = 'Print out debug statements if flag is set')
+
+args = parser.parse_args()
 
 #dictionary mapping of teamnames to cities for looking up URL
 cities = {"orioles":"Baltimore", "yankees":"NY Yankees", "red sox":"Boston", "rays":"Tampa Bay", "blue jays":"Toronto",
@@ -45,6 +55,10 @@ if len(month) == 1:
 
 scoreboard = "http://gd2.mlb.com/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day + "/scoreboard_windows.xml"
 
+if(args.debug):
+    print("scoreboard " + scoreboard)
+    print("teamname: " + cities.get(team))
+    
 #getting the gameday URL which has the lineups
 try:
     with urllib.request.urlopen(scoreboard) as response:
@@ -55,12 +69,25 @@ except urllib.error.HTTPError as err:
         sys.exit("error invalid url.  make sure date is correct")
     else:
         raise
-    
+
+#seems that in 2018 there is an inning_break_length variable after the html instead
+#of the league variable
+
 startIndex = html.find("game_data_directory", html.find(cities.get(team))) + 21
-endIndex = html.find("league", startIndex)-10
+
+if(year == "2018"):
+    endIndex = html.find("inning_break_length", startIndex) - 10
+else:
+    if(args.debug):
+        print(year)
+    endIndex = html.find("league", startIndex)-10
+    
 html = html[startIndex:endIndex]
 
 gdURL = "http://gd2.mlb.com" + html + "/boxscore.xml"
+
+if(args.debug):
+    print("gameday: " + gdURL)
 
 #connecting to gameday to get the lineup
 try:
@@ -74,12 +101,12 @@ except urllib.error.HTTPError as err:
     else:
         raise
 
-homeTeam = re.search('home_sname="(\w*|\w* \w* \w*)"', gameday)
+homeTeam = re.search('home_sname="(\w*)|(\w* \w*)"', gameday)
 
 if not homeTeam:
     sys.exit("could not find hometeam")
 else:
-    homeTeam = re.search('home_sname="(\w*|\w* \w* \w*)"', gameday).group(1)
+    homeTeam = homeTeam.group(1)
 
 if homeTeam == cities.get(team):
     gameday = gameday[gameday.find('batting team_flag="home"'):
@@ -87,7 +114,7 @@ if homeTeam == cities.get(team):
 else:
     gameday = gameday[gameday.find('batting team_flag="away"'):]
 
-match = re.findall('name_display_first_last="(\w* \w*)"', gameday)
+match = re.findall('name_display_first_last="(\w* \w*)"\s*pos=".*"\s*bo="\d00"', gameday)
 
 if not match:
     sys.exit("could not match lineup on gameday")
