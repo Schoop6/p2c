@@ -1,8 +1,14 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - Pick to Click</title>
+<title href="{{ url_for('index') }}">{% block title %}{% endblock %} - Pick to Click</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1>Pick to Click</h1>
+  <h1>Pick to Click <br>
+    <font size="4" align="left">
+    <a href="{{ url_for('index') }}">Lineups</a>
+    <a href="{{ url_for('pick.myPick') }}">Picks</a>
+    <a href="{{ url_for('pick.scores') }}">Score</a>
+    </font> 
+  </h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
