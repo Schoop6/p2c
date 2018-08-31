@@ -3,20 +3,21 @@ from datetime import timedelta
 import lineups
 import time
 import atexit
-
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
+import logging
 
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Flask, Blueprint, flash, g, redirect, render_template, request, url_for
 )
+
+import celery
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from p2c.auth import login_required
+from p2c.db import get_db
 
 bp = Blueprint('pick', __name__)
+        
 
 HOMERS = {}
 #dates hashed to who homered on those dates
@@ -24,45 +25,11 @@ HOMERS = {}
 over = ["O", "F"] #these status letters mean the games done
 pregame = ["P", "PW"]
 
-#schedules the verification to happen every 33 mins
-#from stackOverflow
-scheduler = BackgroundScheduler()
-scheduler.start()
-scheduler.add_job(
-    func=verifyClicks,
-    trigger=IntervalTrigger(minutes=1),
-    id='verify clicks',
-    name='Verify if clicks occurred',
-    replace_existing=True)
-# Shut down the scheduler when exiting the app
-atexit.register(lambda: scheduler.shutdown())
-
-
-#just checks if user already has a pick registered for today
-#returns (Boolean, error message"") tuple
-def checkPick():
-    db = get_db()
-    if g.user is None:
-        return False, "Not logged in"
-    picks = db.execute(
-        'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
-    if not picks:
-        return False, "not picks"
-    recent = picks.fetchone()
-    if not recent:
-        return False, "not recent"
-
-    pickDate = recent['created']
-    today = datetime.date.today()
-    if today == pickDate.date():
-        return (True, "You've already picked {} today".format(recent['player']))
-    else:
-        return False, "Picked recently"
-
 
 def verifyClicks():
     db = get_db()
-    
+
+    print("Starting verification.  this is cool")
     unverifiedPicks = db.execute(
         'SELECT * FROM pick WHERE verified = NULL')
     if unverifiedPicks is None:
@@ -108,7 +75,30 @@ def verifyClicks():
                 db.commit()
 
 
-        
+
+
+#just checks if user already has a pick registered for today
+#returns (Boolean, error message"") tuple
+def checkPick():
+    db = get_db()
+    if g.user is None:
+        return False, "Not logged in"
+    picks = db.execute(
+        'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
+    if not picks:
+        return False, "not picks"
+    recent = picks.fetchone()
+    if not recent:
+        return False, "not recent"
+
+    pickDate = recent['created']
+    today = datetime.date.today()
+    if today == pickDate.date():
+        return (True, "You've already picked {} today".format(recent['player']))
+    else:
+        return False, "Picked recently"
+
+
 
 @bp.route('/myPick')
 @login_required

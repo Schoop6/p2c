@@ -17,6 +17,7 @@ cities = {"orioles":"Baltimore", "yankees":"NY Yankees", "red sox":"Boston", "ra
           "cubs":"Chi Cubs", "brewers":"Milwaukee", "cardinals":"St. Louis", "pirates":"Pittsburgh", "reds":"Cincinnati",
           "dodgers":"LA Dodgers", "diamondbacks":"Arizona", "rockies":"Colorado", "padres":"San Diego", "giants":"San Fransisco"}
 
+
 def getStatus(date, team):
     gdURL = get_GDurl(date, team)
 
@@ -95,7 +96,7 @@ def get_dongers(date, team):
     except urllib2.HTTPError, err:
         return dongers, err.code
 
-    homeTeam = re.search('home_sname="(\w*)|(\w* \w*)"', gameday)
+    homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
 
     if not homeTeam:
         return dongers, "could not find hometeam name"
@@ -130,11 +131,11 @@ def get_dongers(date, team):
 def get_lineups(date, team):
     lineups = []
     error = ""
-  #  date = date - timedelta(1)
-   # print(date)
+    #  date = date - timedelta(1)
+  #  print(date)
     team = team.lower()
     gdURL = get_GDurl(date, team)
-  #  print(gdURL)
+    print(gdURL)
     #connecting to gameday to get the lineup
     try:
         response = urllib2.urlopen(gdURL)
@@ -144,8 +145,9 @@ def get_lineups(date, team):
     except urllib2.HTTPError, err:
        # print(gdURL)
         return lineups, err.code
-    homeTeam = re.search('home_sname="(\w*)|(\w* \w*)"', gameday)
-
+    
+    homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
+    print homeTeam.group(1)
     if not homeTeam:
         return lineups, "could not find hometeam name"
     else:
