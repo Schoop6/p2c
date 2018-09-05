@@ -3,14 +3,17 @@ import logging
 import time
 import datetime
 from datetime import timedelta
-from p2c.db import get_db
+from p2c.db import get_db, close_db
 
 
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+import apscheduler.schedulers
 import atexit
 
+#declaring the scheduler
+scheduler = BackgroundScheduler()
 
 HOMERS = {}
 #dates hashed to who homered on those dates
@@ -26,9 +29,9 @@ def verifyClicks():
     with app.app_context():
 
         db = get_db()
-
+     #   print("*******STARTING CHECK*******")
         unverifiedPicks = db.execute(
-            'SELECT * FROM pick WHERE click = NULL')
+            'SELECT * FROM pick WHERE click IS NULL')
         if unverifiedPicks is None:
             print("NO UNVERIFIED PICKS")
             #TODO: Maybe shut down the scheduler if there's no unverified picks?
@@ -36,7 +39,6 @@ def verifyClicks():
             #would this have other ramifications??????????
             #Just want to save server resourses
             return
-    
         date = datetime.date.today()
         status = lineups.getStatus(date, "orioles")
         yesterday = date - timedelta(1)
@@ -48,26 +50,43 @@ def verifyClicks():
             HOMERS[date] = None
     
         if HOMERS[date] is None and status in over:
-            HOMERS[date] = lineups.get_dongers(date, "orioles")
+            hrs, error = lineups.get_dongers(date, "orioles")
+            if error != "":
+                print(error)
+            else:
+                HOMERS[date] = hrs
         if HOMERS[yesterday] is None and statusYes in over:
-            HOMERS[yesterday] = lineups.get_dongers(yesterday, "orioles")
-
+             hrs, error = lineups.get_dongers(yesterday, "orioles")
+             if error != "":
+                 print(error)
+             HOMERS[yesterday] = hrs
+    #    print("*******CHECKING STATUS*******")
+                
         if status is over or statusYes in over:
+         #   print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
             for p in unverifiedPicks:
-                dongers = HOMERS[p['created'].date]
+                s = lineups.getStatus(p['created'].date(), "orioles")
+                if s not in over:
+                #    print("******GAME NOT OVER YET*******")
+                    continue
+                dongers = HOMERS[p['created'].date()]
                 player = p['player']
                 ident = p['id']
                 uname = p['username']
-            
+                print(uname)
+                db = get_db()
+
+                print(type(dongers))
+            #    print(dongers)
                 if player in dongers: #if your player clicks
                     db.execute( #update the pick with the verification bit set
                         'UPDATE pick SET click = ?'
                         'WHERE id = ?',
                         (1, ident))
                     db.execute( #update the total score of the player
-                        'UPDATE user SET score = score + 1'
-                        'WHERE username = ?',
+                        'UPDATE user SET score = score + 1 WHERE username = ?',
                         (uname, ))
+                    print(uname)
                     db.commit()
                 else: #player didn't click
                     db.execute(#still need to set the verification bit 
@@ -77,13 +96,10 @@ def verifyClicks():
                     db.commit()
 
 
-
-
-scheduler = BackgroundScheduler()
 scheduler.start()
 scheduler.add_job(
     func=verifyClicks,
-    trigger=IntervalTrigger(minutes=33),
+    trigger=IntervalTrigger(seconds=33),
     id='verify picks',
     name='Verify if clicks should be awarded points or not',
     replace_existing=True)

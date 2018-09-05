@@ -56,11 +56,13 @@ def myPick():
     picks = db.execute(
         'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
     recentPick = picks.fetchone()
+    print(recentPick['click'])
     if not recentPick:
-        return render_template('pick/myPick.html', lastPick="None")
+        return render_template('pick/myPick.html', lastPick="Nobody", time="Never")
     else:
-        return render_template('pick/myPick.html',
-                               lastPick=recentPick['player'], time=recentPick['created'])
+        return render_template('pick/myPick.html',lastPick=recentPick['player'],
+                               time=recentPick['created'], verified=recentPick['click'])
+    
 
 
 

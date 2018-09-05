@@ -116,11 +116,10 @@ def get_dongers(date, team):
         dongs = re.search('so="\d+"\s*hr="(\d+)"\s*rbi', batter)
         if not dongs:
             return dongers, "Fatal error in formatting/regex"
-
         dongs = dongs.group(1)
         if int(dongs) > 0:
             name = re.search('"(\w* \w*)"', batter)
-            dongers.append(name.group(1))
+            dongers.append(str(name.group(1)))
 
     return dongers, error
 
