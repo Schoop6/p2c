@@ -62,8 +62,8 @@ def verifyClicks():
              HOMERS[yesterday] = hrs
     #    print("*******CHECKING STATUS*******")
                 
-        if status is over or statusYes in over:
-         #   print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
+        if status in over or statusYes in over:
+            print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
             for p in unverifiedPicks:
                 s = lineups.getStatus(p['created'].date(), "orioles")
                 if s not in over:
