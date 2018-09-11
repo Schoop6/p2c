@@ -5,7 +5,9 @@ import logging
 import time
 import datetime
 from datetime import timedelta
-from db import get_db, close_db
+from p2c.db import get_db, close_db
+from p2c.lineups import getStatus, get_lineups
+#don't you just love the conflicting styles in my function names
 
 
 from flask import Flask
@@ -42,23 +44,26 @@ def verifyClicks():
             #Just want to save server resourses
             return
         date = datetime.date.today()
-        status = lineups.getStatus(date, "orioles")
+        status = getStatus(date, "orioles")
         yesterday = date - timedelta(1)
-        statusYes = lineups.getStatus(yesterday, "orioles")
+        statusYes = getStatus(yesterday, "orioles")
 
         if not yesterday in HOMERS:
             HOMERS[yesterday] = None
         if not date in HOMERS:
             HOMERS[date] = None
-    
+
+        print(statusYes)
+        print(status)
+            
         if HOMERS[date] is None and status in over:
-            hrs, error = lineups.get_dongers(date, "orioles")
+            hrs, error = get_dongers(date, "orioles")
             if error != "":
                 print(error)
             else:
                 HOMERS[date] = hrs
         if HOMERS[yesterday] is None and statusYes in over:
-             hrs, error = lineups.get_dongers(yesterday, "orioles")
+             hrs, error = get_dongers(yesterday, "orioles")
              if error != "":
                  print(error)
              HOMERS[yesterday] = hrs
@@ -67,7 +72,7 @@ def verifyClicks():
         if status in over or statusYes in over:
             print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
             for p in unverifiedPicks:
-                s = lineups.getStatus(p['created'].date(), "orioles")
+                s = getStatus(p['created'].date(), "orioles")
                 if s not in over:
                 #    print("******GAME NOT OVER YET*******")
                     continue

@@ -1,6 +1,5 @@
 import datetime
 from datetime import timedelta
-import lineups
 import time
 import atexit
 import logging
@@ -11,6 +10,7 @@ from flask import (
 
 from werkzeug.exceptions import abort
 
+from p2c.lineups import get_lineups, getStatus
 from p2c.auth import login_required
 from p2c.db import get_db
 
@@ -100,7 +100,7 @@ def index():
         else:
             picked, msg = checkPick()
             pick = request.form.get("player", False)
-            stat = lineups.getStatus(datetime.date.today(), "orioles")
+            stat = getStatus(datetime.date.today(), "orioles")
             db = get_db()
             if not stat in pregame:
                 flash(stat + " Picks locked after game starts!")
@@ -139,7 +139,7 @@ def index():
 
             
     date = datetime.date.today()
-    lineup, error = lineups.get_lineups(date, "Orioles")
+    lineup, error = get_lineups(date, "Orioles")
     if error is not "":
         print("Error: {}".format(error))
     return render_template('pick/index.html', lineup=lineup, error=error)
