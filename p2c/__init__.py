@@ -1,9 +1,11 @@
+#!/usr/bin/python3
+
 import os
 import logging
 import time
 import datetime
 from datetime import timedelta
-from p2c.db import get_db, close_db
+from db import get_db, close_db
 
 
 from flask import Flask
