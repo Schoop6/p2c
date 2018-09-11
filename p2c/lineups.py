@@ -142,6 +142,8 @@ def get_lineups(date, team):
     team = team.lower()
     gdURL = get_GDurl(date, team)
     print(gdURL)
+    if gdURL is None:
+        return lineups, "Off day today?"
     #connecting to gameday to get the lineup
     try:
         response = urllib2.urlopen(gdURL)
