@@ -3,7 +3,7 @@
 #modified to work with the server
 import sys
 import re
-import urllib2
+from urllib.request import urlopen
 import datetime
 from datetime import timedelta
 
@@ -26,9 +26,9 @@ def getStatus(date, team):
     #print(gdURL)
 
     try:
-        response = urllib2.urlopen(gdURL)
+        response = urlopen(gdURL)
         gameday = response.read().decode("utf-8")
-    except urllib2.HTTPError, err:
+    except err:
         #print("error in scoreboard url")
         return err.code
 
@@ -65,10 +65,10 @@ def get_GDurl(date, team):
     
     #getting the gameday URL which has the lineups
     try:
-        response = urllib2.urlopen(scoreboard)
+        response = urlopen(scoreboard)
         html = response.read().decode("utf-8")
 
-    except urllib2.HTTPError, err:
+    except err:
         #print("error in scoreboard url")
         return lineups, err.code
 
@@ -97,10 +97,10 @@ def get_dongers(date, team):
     gdURL = get_GDurl(date, team)
 
     try:
-        response = urllib2.urlopen(gdURL)
+        response = urlopen(gdURL)
         gameday = response.read().decode("utf-8")
 
-    except urllib2.HTTPError, err:
+    except err:
         return dongers, err.code
 
     homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
@@ -146,16 +146,16 @@ def get_lineups(date, team):
         return lineups, "Off day today?"
     #connecting to gameday to get the lineup
     try:
-        response = urllib2.urlopen(gdURL)
+        response = urlopen(gdURL)
         gameday = response.read().decode("utf-8")
 
     #this should only really happen if there's a failure in how I got the url to begin with
-    except urllib2.HTTPError, err:
+    except err:
        # print(gdURL)
         return lineups, err.code
     
     homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
-    print homeTeam.group(1)
+    print(homeTeam.group(1))
     if not homeTeam:
         return lineups, "could not find hometeam name"
     else:
