@@ -125,7 +125,8 @@ while i<9:
     print(match[i])
     i+=1
 
-
+print(gdURL)
+print(scoreboard)
 
 
 
