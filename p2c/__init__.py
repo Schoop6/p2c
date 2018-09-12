@@ -36,13 +36,16 @@ def verifyClicks():
      #   print("*******STARTING CHECK*******")
         unverifiedPicks = db.execute(
             'SELECT * FROM pick WHERE click IS NULL')
-        if unverifiedPicks is None:
+        if unverifiedPicks.fetchone() is None:
             print("NO UNVERIFIED PICKS")
             #TODO: Maybe shut down the scheduler if there's no unverified picks?
             #maybe we can restart it the second someone makes a pick
             #would this have other ramifications??????????
             #Just want to save server resourses
             return
+        else:
+            unverifiedPicks =  db.execute(
+            'SELECT * FROM pick WHERE click IS NULL')
         date = datetime.date.today()
         status = getStatus(date, "orioles")
         yesterday = date - timedelta(1)
@@ -103,6 +106,8 @@ def verifyClicks():
                         (0, ident))
                     print("updating {}'s click to no".format(uname))
                     db.commit()
+                    check = db.execute('SELECT click from pick WHERE id = ?', (ident,)).fetchone()
+                    print(check['click'])
 
 
 scheduler.start()
