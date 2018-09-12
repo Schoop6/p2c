@@ -44,7 +44,7 @@ def checkPick():
         return False, "not recent"
 
     pickDate = recent['created']
-    today = tz.localize(datetime.datetime.now()).date()
+    today = datetime.datetime.now(tz).date()
     if today == pickDate.date():
         return (True, "You've already picked {} today".format(recent['player']))
     else:
@@ -103,7 +103,7 @@ def index():
         else:
             picked, msg = checkPick()
             pick = request.form.get("player", False)
-            stat = getStatus(tz.localize(datetime.datetime.now()).date(), "orioles")
+            stat = getStatus(datetime.datetime.now(tz).date(), "orioles")
             db = get_db()
             if not stat in pregame:
                 flash(stat + " Picks locked after game starts!")
@@ -124,7 +124,7 @@ def index():
                     db.execute(
                         'UPDATE pick SET player = ?, created = ?'
                         'WHERE id = ?',
-                        (pick, tz.localize(datetime.datetime.now()), pickEntry['id']))
+                        (pick, datetime.datetime.now(tz), pickEntry['id']))
                     db.commit()
     
     # db = get_db()
@@ -140,8 +140,8 @@ def index():
         else:
             flash(error)
 
-    print("local time is {}".format(tz.localize(datetime.datetime.now())))
-    date = tz.localize(datetime.datetime.now()).date()
+    print("local time is {}".format(datetime.datetime.now(tz)))
+    date = datetime.datetime.now(tz).date()
     lineup, error = get_lineups(date, "Orioles")
     if error is not "":
         print("Error: {}".format(error))
