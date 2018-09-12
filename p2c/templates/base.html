@@ -1,12 +1,15 @@
 <!doctype html>
 <title href="{{ url_for('index') }}">{% block title %}{% endblock %} - Pick to Click</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<h2>Pick to Click</h2>
 <nav>
-  <h1>Pick to Click <br>
+  <h1>
     <font size="4" align="left">
-    <a href="{{ url_for('index') }}">Lineups</a>
-    <a href="{{ url_for('pick.myPick') }}">Picks</a>
-    <a href="{{ url_for('pick.scores') }}">Score</a>
+      <div class = "btn-group">
+	<a href="{{ url_for('index') }}" class="button">Lineups</a>
+	<a href="{{ url_for('pick.myPick') }}" class="button">Picks</a>
+	<a href="{{ url_for('pick.scores') }}" class="button">Score</a>
+      </div>
     </font> 
   </h1>
   <ul>
