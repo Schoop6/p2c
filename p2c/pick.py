@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+from pytz import timezone
 import time
 import atexit
 import logging
@@ -15,9 +16,11 @@ from p2c.auth import login_required
 from p2c.db import get_db
 
 bp = Blueprint('pick', __name__)
+tz = timezone("America/New_York")
+#setting the timezone because heroku uses UTC
 
 
-    
+
 
 
 HOMERS = {}
@@ -41,7 +44,7 @@ def checkPick():
         return False, "not recent"
 
     pickDate = recent['created']
-    today = datetime.date.today()
+    today = tz.localize(datetime.datetime.now()).date()
     if today == pickDate.date():
         return (True, "You've already picked {} today".format(recent['player']))
     else:
@@ -100,7 +103,7 @@ def index():
         else:
             picked, msg = checkPick()
             pick = request.form.get("player", False)
-            stat = getStatus(datetime.date.today(), "orioles")
+            stat = getStatus(tz.localize(datetime.datetime.now()).date(), "orioles")
             db = get_db()
             if not stat in pregame:
                 flash(stat + " Picks locked after game starts!")
@@ -121,7 +124,7 @@ def index():
                     db.execute(
                         'UPDATE pick SET player = ?, created = ?'
                         'WHERE id = ?',
-                        (pick, datetime.datetime.now(), pickEntry['id']))
+                        (pick, tz.localize(datetime.datetime.now()), pickEntry['id']))
                     db.commit()
     
     # db = get_db()
@@ -137,8 +140,8 @@ def index():
         else:
             flash(error)
 
-            
-    date = datetime.date.today()
+    print("local time is {}".format(tz.localize(datetime.datetime.now()).date()))
+    date = tz.localize(datetime.datetime.now()).date()
     lineup, error = get_lineups(date, "Orioles")
     if error is not "":
         print("Error: {}".format(error))
