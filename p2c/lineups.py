@@ -62,7 +62,7 @@ def get_GDurl(date, team):
     #the url of the scoreboard for the game being asked for
     scoreboard = "http://gd2.mlb.com/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day + "/scoreboard_windows.xml"
     #if(args.debug):
-    #print("scoreboard " + scoreboard)
+    print("scoreboard " + scoreboard)
       #  print("teamname: " + cities.get(team))
     
     #getting the gameday URL which has the lineups
