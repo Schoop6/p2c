@@ -140,7 +140,7 @@ def index():
         else:
             flash(error)
 
-    print("local time is {}".format(tz.localize(datetime.datetime.now()))
+    print("local time is {}".format(tz.localize(datetime.datetime.now())))
     date = tz.localize(datetime.datetime.now()).date()
     lineup, error = get_lineups(date, "Orioles")
     if error is not "":
