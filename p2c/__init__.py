@@ -72,6 +72,7 @@ def verifyClicks():
         if status in over or statusYes in over:
             print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
             for p in unverifiedPicks:
+                print("going through picks")
                 s = getStatus(p['created'].date(), "orioles")
                 if s not in over:
                 #    print("******GAME NOT OVER YET*******")
@@ -80,10 +81,9 @@ def verifyClicks():
                 player = p['player']
                 ident = p['id']
                 uname = p['username']
-                print(uname)
+                print("username: {}".format(uname))
                 db = get_db()
 
-                print(type(dongers))
             #    print(dongers)
                 if player in dongers: #if your player clicks
                     db.execute( #update the pick with the verification bit set
@@ -93,13 +93,15 @@ def verifyClicks():
                     db.execute( #update the total score of the player
                         'UPDATE user SET score = score + 1 WHERE username = ?',
                         (uname, ))
-                    print(uname)
+                    print("updating {}'s click to yes".format(uname))
+
                     db.commit()
                 else: #player didn't click
                     db.execute(#still need to set the verification bit 
                         'UPDATE pick SET click = ?'
                         'WHERE id = ?',
                         (0, ident))
+                    print("updating {}'s click to no".format(uname))
                     db.commit()
 
 
