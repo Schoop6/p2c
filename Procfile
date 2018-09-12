@@ -1,1 +1,1 @@
-web: gunicorn p2c:app
+web: gunicorn p2c.wsgi:application
