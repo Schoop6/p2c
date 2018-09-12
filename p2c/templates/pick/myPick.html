@@ -7,12 +7,14 @@
 {% block content %}
   <p>
     Your most recent pick was: {{ lastPick }} on {{ time }}. <br>
-    {% if not click %}
 
-    This pick has not yet been checked.  Score may be inaccurate if this player has homered. {{ click }}
+    {% if verified is defined %}
+    This pick has been checked.  Scores should be accurate. {{ click }}
+
 
     {% else %}
-    This pick has been checked.  Scores should be accurate. {{ click }}
+    This pick has not yet been checked.  Score may be inaccurate if this player has homered. {{ click }}
+
 
     {% endif %}
   </p>
