@@ -33,6 +33,8 @@ def verifyClicks():
     with app.app_context():
 
         db = get_db()
+        db.execute(
+            'UPDATE pick set click = ? WHERE username is ?', (0, 'tallndawkward'))
      #   print("*******STARTING CHECK*******")
         unverifiedPicks = db.execute(
             'SELECT * FROM pick WHERE click IS NULL')
@@ -100,6 +102,7 @@ def verifyClicks():
 
                     db.commit()
                 else: #player didn't click
+                    print("previous: {}".format(p['click']))
                     db.execute(#still need to set the verification bit 
                         'UPDATE pick SET click = ?'
                         'WHERE id = ?',
@@ -107,7 +110,7 @@ def verifyClicks():
                     print("updating {}'s click to no".format(uname))
                     db.commit()
                     check = db.execute('SELECT click from pick WHERE id = ?', (ident,)).fetchone()
-                    print(check['click'])
+                    print("After: {}".format(check['click']))
 
 
 scheduler.start()
