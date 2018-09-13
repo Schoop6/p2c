@@ -119,7 +119,7 @@ def verifyClicks():
 scheduler.start()
 scheduler.add_job(
     func=verifyClicks,
-    trigger=IntervalTrigger(seconds=33),
+    trigger=IntervalTrigger(minutes=33),
     id='verify picks',
     name='Verify if clicks should be awarded points or not',
     replace_existing=True)
