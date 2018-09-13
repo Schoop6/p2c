@@ -75,7 +75,14 @@ def myPick():
                                time=recentPick['created'], verified=recentPick['click'])
     
 
-
+@bp.route('/leaderboard')
+def leaderboard():
+    db = get_db()
+    picks = db.execute(
+        'SELECT * FROM pick').fetchall()
+    for p in picks:
+        print("pick {} user {}".format(p['player'], p['username']))
+    return render_template('pick/leaderboard.html')
 
 @bp.route('/scores')
 @login_required
