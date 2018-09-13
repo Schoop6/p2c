@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import sys
 import logging
 import time
 import datetime
@@ -16,6 +17,10 @@ from apscheduler.triggers.interval import IntervalTrigger
 import apscheduler.schedulers
 import atexit
 
+#with posgres database_url is kind of required
+'DATABASE_URL' in os.environ or sys.exit('DATABASE_URL must be in the environment')
+
+
 #declaring the scheduler
 scheduler = BackgroundScheduler()
 
@@ -23,7 +28,7 @@ HOMERS = {}
 #dates hashed to who homered on those dates
 
 over = ["O", "F"] #these status letters mean the games done
-pregame = ["P", "PW"]
+pregame = ["P", "PW"] #these mean the game hasn't started
 
 
 #This is maybe not the most efficient way to get this to work but I couldn't really figure
@@ -33,10 +38,11 @@ def verifyClicks():
     with app.app_context():
 
         db = get_db()
+        cur = db.cursor()
      #   print("*******STARTING CHECK*******")
-        unverifiedPicks = db.execute(
+        cur.execute(
             'SELECT * FROM pick WHERE click IS NULL')
-        if unverifiedPicks.fetchone() is None:
+        if cur.fetchone() is None:
             print("NO UNVERIFIED PICKS")
             #TODO: Maybe shut down the scheduler if there's no unverified picks?
             #maybe we can restart it the second someone makes a pick
@@ -44,8 +50,10 @@ def verifyClicks():
             #Just want to save server resourses
             return
         else:
-            unverifiedPicks =  db.execute(
+            cur.execute(
             'SELECT * FROM pick WHERE click IS NULL')
+            unverifiedPick = cur.fetchall()
+            
         date = datetime.date.today()
         status = getStatus(date, "orioles")
         yesterday = date - timedelta(1)
@@ -88,21 +96,21 @@ def verifyClicks():
 
             #    print(dongers)
                 if player in dongers: #if your player clicks
-                    db.execute( #update the pick with the verification bit set
-                        'UPDATE pick SET click = ?'
-                        'WHERE id = ?',
+                    cur.execute( #update the pick with the verification bit set
+                        'UPDATE pick SET click = (%s)'
+                        'WHERE id = (%s)',
                         (1, ident))
-                    db.execute( #update the total score of the player
-                        'UPDATE user SET score = score + 1 WHERE username = ?',
+                    cur.execute( #update the total score of the player
+                        'UPDATE user SET score = score + 1 WHERE username = (%s)',
                         (uname, ))
                     print("updating {}'s click to yes".format(uname))
                     db.commit()
                     
                 else: #player didn't click
                     print("previous: {}".format(p['click']))
-                    db.execute(#still need to set the verification bit 
-                        'UPDATE pick SET click = ?'
-                        'WHERE id = ?',
+                    cur.execute(#still need to set the verification bit 
+                        'UPDATE pick SET click = (%s)'
+                        'WHERE id = (%s)',
                         (0, ident))
                     print("updating {}'s click to no".format(uname))
                     db.commit()
@@ -130,7 +138,6 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'p2c.sqlite'),
     )
 
     if test_config is None:

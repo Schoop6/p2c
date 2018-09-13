@@ -13,7 +13,7 @@ from werkzeug.exceptions import abort
 
 from p2c.lineups import get_lineups, getStatus
 from p2c.auth import login_required
-from p2c.db import get_db
+from p2c.db import get_db, query_db
 
 bp = Blueprint('pick', __name__)
 tz = timezone("America/New_York")
@@ -32,16 +32,13 @@ pregame = ["P", "PW"]
 #just checks if user already has a pick registered for today
 #returns (Boolean, error message"") tuple
 def checkPick():
-    db = get_db()
     if g.user is None:
         return False, "Not logged in"
-    picks = db.execute(
-        'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
-    if not picks:
-        return False, "not picks"
-    recent = picks.fetchone()
+    uname = g.user['username']
+    recent = query_db(
+        'SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (uname,), True)
     if not recent:
-        return False, "not recent"
+        return False, "You have no recent picks"
 
     pickDate = recent['created']
     today = datetime.datetime.now(tz).date()
@@ -54,17 +51,15 @@ def checkPick():
 @bp.route('/myPick')
 @login_required
 def myPick():
-    #list of all picks in a tuple of form (player, date, click)
     allPicks = []
-    db = get_db()
-    picks = db.execute(
-        'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
-    recentPick = picks.fetchone()
-    allPicks.append((recentPick['player'], recentPick['created'].date(), recentPick['click']))
+    #list of all picks in a tuple of form (player, date, click)
+    picksList = query_db(
+        'SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],))
+    recentPick = query_db('SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],), True)
     if not recentPick:
-        return render_template('pick/myPick.html', lastPick="Nobody", time="Never")
+        return render_template('pick/myPick.html', lastPick="Nobody", time="Never", allPicks=None)
     #if recentPick isn't None we're gonna find all the picks they've made 
-    for p in picks:
+    for p in picksList:
         allPicks.append((p['player'], p['created'].date(), p['click']))
     if recentPick['click'] is None:
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
@@ -75,37 +70,31 @@ def myPick():
                                time=recentPick['created'], verified=recentPick['click'])
     
 
-@bp.route('/leaderboard')
-def leaderboard():
-    db = get_db()
-    picks = db.execute(
-        'SELECT * FROM pick').fetchall()
-    for p in picks:
-        print("pick {} user {}".format(p['player'], p['username']))
-    return render_template('pick/leaderboard.html')
-
+#@bp.route('/leaderboard')
+#def leaderboard():
+    #TODO make this a leaderboard page
+    
 @bp.route('/scores')
 @login_required
 def scores():
-    db = get_db()
-    points = db.execute(
-        'SELECT score FROM user WHERE username = ?', (g.user['username'],)).fetchone()
-    if points is None:
+    points = query_db(
+        'SELECT score FROM users WHERE username = (%s)', (g.user['username'],), True)
+    if points is None: #should never have no entry for a logged in user
         return render_template('pick/scores.html',
                                score="something went horrible wrong", player=None, date=None)
     points = points['score']
     if not points == 0:
-        lastClick = db.execute(
-            'SELECT * FROM pick WHERE username = ? AND click = 1', (g.user['username'],))
-        if not lastClick:
+        cur.execute(
+            'SELECT * FROM pick WHERE username = (%s) AND click = 1', (g.user['username'],))
+        lastClick = curr.fetchone()
+        
+        if not lastClick: #should never have more than 0 points but no clicks verified
             return render_template('pick/scores.html',
                 score="something went horrible wrong", player=None, date=None)
         else:
-            lastClick = lastClick.fetchone()
-
-        return render_template('pick/scores.html',
-                               score=points, player=lastClick['player'],
-                               date=lastClick['created'].date())
+            return render_template('pick/scores.html',
+                                   score=points, player=lastClick['player'],
+                                   date=lastClick['created'].date())
     else:
         return render_template('pick/scores.html', score=0, player="Nobody", date="Never")
 
@@ -120,25 +109,26 @@ def index():
             pick = request.form.get("player", False)
             stat = getStatus(datetime.datetime.now(tz).date(), "orioles")
             db = get_db()
+            cur = db.cursor()
             if not stat in pregame:
                 flash(stat + " Picks locked after game starts!")
             else:
                 if picked is False:
                     flash("You've picked {}".format(pick))
-                    db.execute(
+                    cur.execute(
                         'INSERT INTO pick (username, player, created)'
-                        'VALUES (?,?,?)',
+                        'VALUES ((%s),(%s),(%s))',
                         (g.user['username'], pick, datetime.datetime.now()))
                     db.commit()
                     
                 else:
                     flash("Your pick was updated to {}".format(pick))
-                    pickEntry = db.execute(
-                        'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;',
-                        (g.user['username'],)).fetchone()
-                    db.execute(
-                        'UPDATE pick SET player = ?, created = ?'
-                        'WHERE id = ?',
+                    pickEntry = query_db(
+                        'SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;',
+                        (g.user['username'],), True)
+                    cur.execute(
+                        'UPDATE pick SET player = (%s), created = (%s)'
+                        'WHERE id = (%s)',
                         (pick, datetime.datetime.now(tz), pickEntry['id']))
                     db.commit()
     
