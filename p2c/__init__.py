@@ -37,22 +37,16 @@ def verifyClicks():
     app = create_app()
     with app.app_context():
 
-        db = get_db()
-        cur = db.cursor()
      #   print("*******STARTING CHECK*******")
-        cur.execute(
+        unverifiedPick = query_db(
             'SELECT * FROM pick WHERE click IS NULL')
-        if cur.fetchone() is None:
+        if unverifiedPick is None:
             print("NO UNVERIFIED PICKS")
             #TODO: Maybe shut down the scheduler if there's no unverified picks?
             #maybe we can restart it the second someone makes a pick
             #would this have other ramifications??????????
             #Just want to save server resourses
             return
-        else:
-            cur.execute(
-            'SELECT * FROM pick WHERE click IS NULL')
-            unverifiedPick = cur.fetchall()
             
         date = datetime.date.today()
         status = getStatus(date, "orioles")
