@@ -51,19 +51,24 @@ def checkPick():
         return False, "Picked recently"
 
 
-
 @bp.route('/myPick')
 @login_required
 def myPick():
+    #list of all picks in a tuple of form (player, date, click)
+    allPicks = []
     db = get_db()
     picks = db.execute(
         'SELECT * FROM pick WHERE username = ? ORDER BY created DESC;', (g.user['username'],))
     recentPick = picks.fetchone()
+    allPicks.append((recentPick['player'], recentPick['created'].date(), recentPick['click']))
     if not recentPick:
         return render_template('pick/myPick.html', lastPick="Nobody", time="Never")
-    elif recentPick['click'] is None:
+    #if recentPick isn't None we're gonna find all the picks they've made 
+    for p in picks:
+        allPicks.append((p['player'], p['created'].date(), p['click']))
+    if recentPick['click'] is None:
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
-                               time=recentPick['created'], verified=None)
+                               time=recentPick['created'], verified=None, allPicks=allPicks)
     else:
         print("click variable: {}".format(recentPick['click']))
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
