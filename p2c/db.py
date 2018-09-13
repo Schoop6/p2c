@@ -12,7 +12,6 @@ def connect_db():
     uses_netloc.append("postgres")
     URL = urlparse(os.environ['DATABASE_URL'])
     #this is a global var used by the db module
-    print(URL.username)
     return psycopg2.connect(
         database = URL.path[1:],
         user = URL.username,

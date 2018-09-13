@@ -63,7 +63,7 @@ def myPick():
         allPicks.append((p['player'], p['created'].date(), p['click']))
     if recentPick['click'] is None:
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
-                               time=recentPick['created'], verified=None, allPicks=allPicks)
+                               time=recentPick['created'], allPicks=allPicks)
     else:
         print("click variable: {}".format(recentPick['click']))
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
