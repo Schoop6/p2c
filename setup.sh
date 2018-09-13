@@ -4,5 +4,6 @@
 
 export FLASK_APP=p2c
 export FLASK_ENV=development
+export DATABASE_URL='/instance/p2c.sqlite'
 
 flask run --no-reload
