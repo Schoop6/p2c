@@ -46,7 +46,7 @@ def query_db(query, args=(), one=False):
     while row is not None:
         rv.append(make_dicts(curr, row))
         row = curr.fetchone()
-        curr.close()
+    curr.close()
     return (rv[0] if rv else None) if one else rv
         
         
