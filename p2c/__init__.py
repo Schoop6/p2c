@@ -76,7 +76,7 @@ def verifyClicks():
                 
         if status in over or statusYes in over:
             print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
-            for p in unverifiedPicks:
+            for p in unverifiedPick:
                 print("going through picks")
                 s = getStatus(p['created'].date(), "orioles")
                 if s not in over:
