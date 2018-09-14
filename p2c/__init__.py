@@ -37,7 +37,9 @@ def verifyClicks():
     app = create_app()
     with app.app_context():
 
-     #   print("*******STARTING CHECK*******")
+        db = get_db()
+        cur = db.cursor()
+        #   print("*******STARTING CHECK*******")
         unverifiedPick = query_db(
             'SELECT * FROM pick WHERE click IS NULL')
         if unverifiedPick is None:
