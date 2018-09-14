@@ -6,7 +6,7 @@ import logging
 import time
 import datetime
 from datetime import timedelta
-from p2c.db import get_db, close_db
+from p2c.db import get_db, close_db, query_db
 from p2c.lineups import getStatus, get_lineups, get_dongers
 #don't you just love the conflicting styles in my function names
 
