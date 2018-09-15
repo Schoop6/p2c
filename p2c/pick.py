@@ -68,14 +68,15 @@ def myPick():
         return render_template('pick/myPick.html', lastPick="Nobody", time="Never", allPicks=None)
     #if recentPick isn't None we're gonna find all the picks they've made 
     for p in picksList:
+        #print("player: {} created: {} click: {}".format(
+         #   p['player'], p['created'].date(), p['click']))
         allPicks.append((p['player'], p['created'].date(), p['click']))
     if recentPick['click'] is None:
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
                                time=recentPick['created'], allPicks=allPicks)
     else:
-        print("click variable: {}".format(recentPick['click']))
         return render_template('pick/myPick.html',lastPick=recentPick['player'],
-                               time=recentPick['created'], verified=recentPick['click'])
+                               time=recentPick['created'], verified=recentPick['click'], allPicks=allPicks)
     
 
 #@bp.route('/leaderboard')
