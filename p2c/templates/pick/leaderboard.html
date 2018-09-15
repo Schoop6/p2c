@@ -1,6 +1,60 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %}Leaderboard{% endblock %}</h1>
+<h1 align="center">{% block title %}Leaderboard{% endblock %}</h1>
 {% endblock %}
+
+{% block content %}
+<br>
+<br>
+<table style="width:75"; align="center">
+  <tr>
+    <th>Username</th>
+    <th>Score</th>
+  </tr>
+
+  {% for user, score in leaders %}
+ 
+  <tr>
+    <td> {{ user }} </td>
+    <td> {{ score }}</td>
+  </tr>
+  
+  {% endfor %}
+
+</table> 
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

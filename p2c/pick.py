@@ -48,6 +48,14 @@ def checkPick():
         return False, "Picked recently"
 
 
+@bp.route('/leaderboard')
+def leaderboard():
+    leaders = []
+    query = query_db('SELECT * FROM users ORDER BY score DESC')
+    for l in query:
+        leaders.append((l['username'], l['score']))
+    return render_template('pick/leaderboard.html', leaders=leaders)
+
 @bp.route('/myPick')
 @login_required
 def myPick():

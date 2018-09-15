@@ -36,7 +36,13 @@ a
 .btn-group .button:hover
 {
     background-color: #cc8500;
-;
+
+}
+
+table, th, td
+{
+    border: 1px solid black;
+    
 }
 
 
