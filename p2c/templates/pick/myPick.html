@@ -20,15 +20,30 @@
 </p><br>
 <p>
   <h1> All Picks <font size="3"><i>(most recent first)</i> </font></h1>
-  
-  {% for player, date, click in allPicks %}
-  
-  {{ player }}, {{ date }}, {{ click }} <br>
+  <table style="width:75%">
+    <tr>
+      <th>Player</th>
+      <th>Date</th>
+      <th>Click</th>
+    </tr>
 
-
-
-  {% endfor %}
+    {% for player, date, click in allPicks %}
     
+    <tr>
+      <td align="center"> {{ player }} </td>
+      <td align="center"> {{ date }} </td>
+      <td align="center"> {{ click }} </td>
+    </tr>
+    
+    {% endfor %}
+
+  </table> 
+
+  
+  <font size="2"><i> Note that None means the pick hasn't been checked, 0 means the pick was not a click and 1 means you got a click for that pick </i></font>
+
+  
+  
 </p>
-    
+
 {% endblock %}

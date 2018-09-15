@@ -127,7 +127,7 @@ def index():
                     cur.execute(
                         'INSERT INTO pick (username, player, created)'
                         'VALUES ((%s),(%s),(%s))',
-                        (g.user['username'], pick, datetime.datetime.now()))
+                        (g.user['username'], pick, datetime.datetime.now(tz)))
                     db.commit()
                     
                 else:
