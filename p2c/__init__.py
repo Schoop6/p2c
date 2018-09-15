@@ -95,7 +95,7 @@ def verifyClicks():
                     cur.execute( #update the pick with the verification bit set
                         'UPDATE pick SET click = (%s)'
                         'WHERE id = (%s)',
-                        (1, ident))
+                        ('1', ident))
                     cur.execute( #update the total score of the player
                         'UPDATE user SET score = score + 1 WHERE username = (%s)',
                         (uname, ))
@@ -107,7 +107,7 @@ def verifyClicks():
                     cur.execute(#still need to set the verification bit 
                         'UPDATE pick SET click = (%s)'
                         'WHERE id = (%s)',
-                        (0, ident))
+                        ('0', ident))
                     print("updating {}'s click to no".format(uname))
                     db.commit()
 
