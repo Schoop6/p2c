@@ -47,7 +47,6 @@ def getStatus(date, team):
 #helper function that gets the game day url for date and team passed in
 def get_GDurl(date, team):
     team = team.lower()
-    
     month = str(date.month)
 
     day = str(date.day)
@@ -59,10 +58,13 @@ def get_GDurl(date, team):
     if len(month) == 1:
         month = "0"+month
 
+    baseURL = "http://gd2.mlb.com/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day
+
+
     #the url of the scoreboard for the game being asked for
-    scoreboard = "http://gd2.mlb.com/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day + "/scoreboard_windows.xml"
+    scoreboard = baseURL + "/scoreboard.xml"
     #if(args.debug):
-    print("scoreboard " + scoreboard)
+    #print("scoreboard " + scoreboard)
       #  print("teamname: " + cities.get(team))
     
     #getting the gameday URL which has the lineups
@@ -73,23 +75,22 @@ def get_GDurl(date, team):
 
     except URLError as err:
         #print("error in scoreboard url")
-        return lineups, err.code
-
-
-    startIndex = html.find("game_data_directory", html.find(cities.get(team))) + 21
-    #case where startIndex cannot find the city (off day)
-    if startIndex == 20:
         return None
 
-    if(int(year) >= 2018):
-        endIndex = html.find("inning_break_length", startIndex) - 10
-    else:
-        endIndex = html.find("league", startIndex)-10
+
+    gms = html.split("game id=")
+    for g in gms:
+        i = g.find(team.capitalize())
+        if i != -1:
+            endIndex = g.find("league=") - 2
+            print("end " + str(endIndex))
+            html = g[1:endIndex]
+            
     
-    html = html[startIndex:endIndex]
+    html = "/gid_" + html
 
-
-    gdURL = "http://gd2.mlb.com" + html + "/boxscore.xml"
+    gdURL = baseURL + html + "/boxscore.xml"
+    print(gdURL)
     
     return gdURL
 
@@ -145,7 +146,7 @@ def get_lineups(date, team):
   #  print(date)
     team = team.lower()
     gdURL = get_GDurl(date, team)
-    print(gdURL)
+    #print(gdURL)
     if gdURL is None:
         return lineups, "Off day today?"
     #connecting to gameday to get the lineup
@@ -167,12 +168,19 @@ def get_lineups(date, team):
         homeTeam = homeTeam.group(1)
 
     if homeTeam == cities.get(team):
-        gameday = gameday[gameday.find('batting team_flag="home"'):
-                          gameday.find('pitching team_flag="home"')]
+        m = re.search('<batting .*team_flag="home"', gameday)
+        if not m:
+            return "Could not find home team on page"
+        gameday = gameday[m.start():gameday.find('</batting', m.start())]
     else:
-        gameday = gameday[gameday.find('batting team_flag="away"'):]
+        m = re.search('<batting .*team_flag="away"', gameday)
+        if not m:
+            return "Could not find away team on page"
+        gameday = gameday[m.start():gameday.find("</batting", m.start())]
+
+    #print(gameday)
         
-    match = re.findall('name_display_first_last="(\w* \w*)"\s*pos=".*"\s*bo="\d00"', gameday)
+    match = re.findall('bo="\d00".*name_display_first_last="(\w* \w*)"', gameday)
 
     if not match:
         return lineups, "could not match lineup on gameday"
