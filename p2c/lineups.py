@@ -95,6 +95,7 @@ def get_GDurl(date, team):
     return gdURL
 
 def get_dongers(date, team):
+    print("Checking dongers")
     dongers = []
     error = ""
     team = team.lower()
