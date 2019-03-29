@@ -52,8 +52,9 @@ def checkPick():
 def leaderboard():
     leaders = []
     query = query_db('SELECT * FROM users ORDER BY score DESC')
-    for l in query:
-        leaders.append((l['username'], l['score']))
+    if query is not None:
+        for l in query:
+            leaders.append((l['username'], l['score']))
     return render_template('pick/leaderboard.html', leaders=leaders)
 
 @bp.route('/myPick')
@@ -65,7 +66,7 @@ def myPick():
         'SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],))
     recentPick = query_db('SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],), True)
     if not recentPick:
-        return render_template('pick/myPick.html', lastPick="Nobody", time="Never", allPicks=None)
+        return render_template('pick/myPick.html', lastPick="Nobody", time="Never", allPicks=[])
     #if recentPick isn't None we're gonna find all the picks they've made 
     for p in picksList:
         #print("player: {} created: {} click: {}".format(

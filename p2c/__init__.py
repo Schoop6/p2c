@@ -60,6 +60,7 @@ def verifyClicks():
         if not date in HOMERS:
             HOMERS[date] = None
 
+        print("Status")
         print(statusYes)
         print(status)
             
@@ -84,6 +85,9 @@ def verifyClicks():
                 if s not in over:
                 #    print("******GAME NOT OVER YET*******")
                     continue
+                print(p['created'].date())
+                print(date)
+                
                 dongers = HOMERS[p['created'].date()]
                 player = p['player']
                 ident = p['id']
@@ -115,7 +119,7 @@ def verifyClicks():
 scheduler.start()
 scheduler.add_job(
     func=verifyClicks,
-    trigger=IntervalTrigger(minutes=33),
+    trigger=IntervalTrigger(seconds=33),
     id='verify picks',
     name='Verify if clicks should be awarded points or not',
     replace_existing=True)

@@ -30,15 +30,15 @@ def getStatus(date, team):
         request = Request(gdURL)
         response = urlopen(request)
         gameday = response.read().decode("utf-8")
-    except URLError as err:
+    except:
         #print("error in scoreboard url")
-        return err.code
+        return None
 
         
     status = re.search("status_ind=\"(\w+)\"", gameday)
 
     if not status:
-        return "Error, no status"
+        return None
     else:
         return status.group(1)
 
