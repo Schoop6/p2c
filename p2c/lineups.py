@@ -162,7 +162,7 @@ def get_lineups(date, team):
         return lineups, err.code
     
     homeTeam = re.search('home_sname="(\w*|\w* \w*)"', gameday)
-    print(homeTeam.group(1))
+    #print(homeTeam.group(1))
     if not homeTeam:
         return lineups, "could not find hometeam name"
     else:
@@ -179,14 +179,20 @@ def get_lineups(date, team):
             return "Could not find away team on page"
         gameday = gameday[m.start():gameday.find("</batting", m.start())]
 
-    #print(gameday)
-        
-    match = re.findall('bo="\d00".*name_display_first_last="(\w* \w*)"', gameday)
-
-    if not match:
-        return lineups, "could not match lineup on gameday"
+    batters = gameday.split("<batter")
+    for b in batters:
+        #print(b)
+        match = re.search('bo="\d00"', b)
+        if match is None:
+            continue
+        match = re.search('name_display_first_last="(\w* \w*|\w* \w* \S*)"', b)
+        print(match.group(1))
+        lineups.append(match.group(1))
+    
+    if len(lineups) is 9:
+        return lineups, ""
     else:
-        return match, ""
+        return lineups, "Possible invalide lineup"
 
 
 
