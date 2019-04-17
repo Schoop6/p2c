@@ -70,11 +70,13 @@ def verifyClicks():
                 print(error)
             else:
                 HOMERS[date] = hrs
+                print("Homers on {} are {}".format(HOMERS[date], hrs))
         if HOMERS[yesterday] is None and statusYes in over:
              hrs, error = get_dongers(yesterday, "orioles")
              if error != "":
                  print(error)
              HOMERS[yesterday] = hrs
+             print("Homers on {} are {}".format(HOMERS[date], hrs))
     #    print("*******CHECKING STATUS*******")
                 
         if status in over or statusYes in over:
@@ -89,6 +91,8 @@ def verifyClicks():
                 print(date)
                 
                 dongers = HOMERS[p['created'].date()]
+                print("dongers in game are")
+                print(dongers)
                 player = p['player']
                 ident = p['id']
                 uname = p['username']
