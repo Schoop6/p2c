@@ -14,5 +14,7 @@ def test2():
     print(lineups.get_dongers(date, "Orioles"))
 
     
-test2()
+
+    
+testQuery()
     

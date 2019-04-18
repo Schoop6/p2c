@@ -42,14 +42,15 @@ def verifyClicks():
         print("*******STARTING CHECK*******")
         unverifiedPick = query_db(
             'SELECT * FROM pick WHERE click IS NULL')
-        if unverifiedPick is None:
+
+
+        if not unverifiedPick:
             print("NO UNVERIFIED PICKS")
             #TODO: Maybe shut down the scheduler if there's no unverified picks?
             #maybe we can restart it the second someone makes a pick
             #would this have other ramifications??????????
-            #Just want to save server resourses
             return
-            
+
         date = datetime.date.today()
         status = getStatus(date, "orioles")
         yesterday = date - timedelta(1)
@@ -70,13 +71,13 @@ def verifyClicks():
                 print(error)
             else:
                 HOMERS[date] = hrs
-                print("Homers on {} are {}".format(HOMERS[date], hrs))
+                print("Homers on {} are {}".format(date, hrs))
         if HOMERS[yesterday] is None and statusYes in over:
              hrs, error = get_dongers(yesterday, "orioles")
              if error != "":
                  print(error)
              HOMERS[yesterday] = hrs
-             print("Homers on {} are {}".format(HOMERS[date], hrs))
+             print("Homers on {} are {}".format(yesterday, hrs))
     #    print("*******CHECKING STATUS*******")
                 
         if status in over or statusYes in over:
@@ -120,24 +121,11 @@ def verifyClicks():
                     db.commit()
 
 
-scheduler.start()
-scheduler.add_job(
-    func=verifyClicks,
-    trigger=IntervalTrigger(seconds=33),
-    id='verify picks',
-    name='Verify if clicks should be awarded points or not',
-    replace_existing=True)
-log = logging.getLogger('apscheduler.executors.default')
-log.setLevel(logging.INFO)  # DEBUG
 
-fmt = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-h = logging.StreamHandler()
-h.setFormatter(fmt)
-log.addHandler(h)
 
 
 def create_app(test_config=None):
-    #print("creating app")
+    print("creating app")
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -174,6 +162,22 @@ def create_app(test_config=None):
     app.register_blueprint(pick.bp)
     app.add_url_rule('/', endpoint='index')
 
+    if scheduler.running is False:
+        print("***** STARTING SCHEDULER *****")
+        scheduler.start()
+        scheduler.add_job(
+            func=verifyClicks,
+            trigger=IntervalTrigger(seconds=33),
+            id='verify picks',
+            name='Verify if clicks should be awarded points or not',
+            replace_existing=True)
+        log = logging.getLogger('apscheduler.executors.default')
+        log.setLevel(logging.INFO)  # DEBUG
+        
+        fmt = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+        h = logging.StreamHandler()
+        h.setFormatter(fmt)
+        log.addHandler(h)
 
     return app
 
