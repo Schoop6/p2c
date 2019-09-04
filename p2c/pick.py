@@ -56,7 +56,6 @@ def leaderboard():
         for l in query:
             leaders.append((l['username'], l['score']))
     return render_template('pick/leaderboard.html', leaders=leaders)
-
 @bp.route('/myPick')
 @login_required
 def myPick():
@@ -157,7 +156,7 @@ def index():
 
     print("local time is {}".format(datetime.datetime.now(tz)))
     date = datetime.datetime.now(tz).date()
-    lineup, error = get_lineups(date, "Orioles")
+    lineup, error = get_lineups(date, "orioles")
     if error is not "":
         print("Error: {}".format(error))
     return render_template('pick/index.html', lineup=lineup, error=error)

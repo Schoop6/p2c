@@ -14,9 +14,12 @@
   </p>
   <p><input type="submit" value="Submit"></p>
 </form>
-    
-  {% else %}
-  <p>Lineups not posted yet</p>
-  {% endif %}
+
+{% elif error == "Off day?" %}
+<p> Day off today </p>
+
+{% else %}
+<p>Lineups not posted yet</p>
+{% endif %}
 
 {% endblock %}

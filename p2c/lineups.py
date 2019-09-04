@@ -60,6 +60,7 @@ def get_GDurl(date, team):
 
     baseURL = "http://gd2.mlb.com/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day
 
+    #print(baseURL)
 
     #the url of the scoreboard for the game being asked for
     scoreboard = baseURL + "/scoreboard.xml"
@@ -83,16 +84,14 @@ def get_GDurl(date, team):
         i = g.find(team.capitalize())
         if i != -1:
             endIndex = g.find("league=") - 2
-            print("end " + str(endIndex))
             html = g[1:endIndex]
-            
-    
-    html = "/gid_" + html
+            html = "/gid_" + html
+            gdURL = baseURL + html + "/boxscore.xml"
+            #print(gdURL) 
+            return gdURL
 
-    gdURL = baseURL + html + "/boxscore.xml"
-    print(gdURL)
-    
-    return gdURL
+    #if the game is not found probable off day
+    return None
 
 def get_dongers(date, team):
     print("Checking dongers")
@@ -100,6 +99,9 @@ def get_dongers(date, team):
     error = ""
     team = team.lower()
     gdURL = get_GDurl(date, team)
+
+    if(None):
+        return dongers, "Date given is not valid gameday"
 
     try:
         request = Request(gdURL)
@@ -155,10 +157,12 @@ def get_lineups(date, team):
     team = team.lower()
     gdURL = get_GDurl(date, team)
     if gdURL is None:
-        return lineups, "Off day today?"
+        return lineups, "Off day?"
     #connecting to gameday to get the lineup
     try:
         request = Request(gdURL)
+        #print(request)
+        print("BAM")
         response = urlopen(request)
         gameday = response.read().decode("utf-8")
 
@@ -198,7 +202,7 @@ def get_lineups(date, team):
     if len(lineups) is 9:
         return lineups, ""
     else:
-        return lineups, "Possible invalide lineup"
+        return lineups, "Possible invalid lineup"
 
 
 
