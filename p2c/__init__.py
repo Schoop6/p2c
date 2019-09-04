@@ -88,8 +88,15 @@ def verifyClicks():
                 if s not in over:
                 #    print("******GAME NOT OVER YET*******")
                     continue
-                print(p['created'].date())
-                print(date)
+
+                # if the key doesn't exist find homers for that day
+                if p['created'].date() not in HOMERS:
+                    hrs, error = get_dongers(p['created'].date(), "orioles")
+                    if error != "":
+                        print(error)
+                        continue
+                    
+                    HOMERS[p['created'].date()] = hrs
                 
                 dongers = HOMERS[p['created'].date()]
                 print("dongers in game are")
@@ -106,7 +113,7 @@ def verifyClicks():
                         'WHERE id = (%s)',
                         ('1', ident))
                     cur.execute( #update the total score of the player
-                        'UPDATE user SET score = score + 1 WHERE username = (%s)',
+                        'UPDATE users SET score = score + 1 WHERE username = (%s)',
                         (uname, ))
                     print("updating {}'s click to yes".format(uname))
                     db.commit()

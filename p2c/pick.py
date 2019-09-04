@@ -93,9 +93,8 @@ def scores():
                                score="something went horrible wrong", player=None, date=None)
     points = points['score']
     if not points == 0:
-        cur.execute(
-            'SELECT * FROM pick WHERE username = (%s) AND click = 1', (g.user['username'],))
-        lastClick = curr.fetchone()
+        lastClick = query_db(
+            'SELECT * FROM pick WHERE username = (%s) AND click = True ORDER BY created DESC', (g.user['username'],), True)
         
         if not lastClick: #should never have more than 0 points but no clicks verified
             return render_template('pick/scores.html',
