@@ -27,7 +27,7 @@ HOMERS = {}
 #dates hashed to who homered on those dates
 
 over = ["O", "F"] #these status letters mean the games done
-pregame = ["P", "PW"]
+pregame = ["P", "PW", "PR"]
 
 #just checks if user already has a pick registered for today
 #returns (Boolean, error message"") tuple

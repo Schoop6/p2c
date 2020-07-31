@@ -24,7 +24,7 @@ def getStatus(date, team):
     if gdURL is None:
         print("returning none")
         return None
-    #print(gdURL)
+    print(gdURL)
 
     try:
         request = Request(gdURL)

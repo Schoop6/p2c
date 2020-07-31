@@ -86,7 +86,8 @@ def verifyClicks():
                 print("going through picks")
                 s = getStatus(p['created'].date(), "orioles")
                 if s not in over:
-                #    print("******GAME NOT OVER YET*******")
+                    print("******GAME NOT OVER YET*******")
+                    print(s)
                     continue
 
                 # if the key doesn't exist find homers for that day
