@@ -110,9 +110,9 @@ def verifyClicks():
             #    print(dongers)
                 if player in dongers: #if your player clicks
                     cur.execute( #update the pick with the verification bit set
-                        'UPDATE pick SET click = (%s)'
+                        'UPDATE pick SET click = True'
                         'WHERE id = (%s)',
-                        ('1', ident))
+                        (ident))
                     cur.execute( #update the total score of the player
                         'UPDATE users SET score = score + 1 WHERE username = (%s)',
                         (uname, ))
@@ -122,9 +122,9 @@ def verifyClicks():
                 else: #player didn't click
                     print("previous: {}".format(p['click']))
                     cur.execute(#still need to set the verification bit 
-                        'UPDATE pick SET click = (%s)'
+                        'UPDATE pick SET click = False'
                         'WHERE id = (%s)',
-                        ('0', ident))
+                        (ident,))
                     print("updating {}'s click to no".format(uname))
                     db.commit()
 
