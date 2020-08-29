@@ -51,36 +51,8 @@ def verifyClicks():
             #would this have other ramifications??????????
             return
 
-        date = datetime.date.today()
-        status = getStatus(date, "orioles")
-        yesterday = date - timedelta(1)
-        statusYes = getStatus(yesterday, "orioles")
-
-        if not yesterday in HOMERS:
-            HOMERS[yesterday] = None
-        if not date in HOMERS:
-            HOMERS[date] = None
-
-        print("Status")
-        print(statusYes)
-        print(status)
-            
-        if HOMERS[date] is None and status in over:
-            hrs, error = get_dongers(date, "orioles")
-            if error != "":
-                print(error)
-            else:
-                HOMERS[date] = hrs
-                print("Homers on {} are {}".format(date, hrs))
-        if HOMERS[yesterday] is None and statusYes in over:
-             hrs, error = get_dongers(yesterday, "orioles")
-             if error != "":
-                 print(error)
-             HOMERS[yesterday] = hrs
-             print("Homers on {} are {}".format(yesterday, hrs))
-    #    print("*******CHECKING STATUS*******")
-                
-        if status in over or statusYes in over:
+        #there *ARE* unverified picks
+        else:
             print("******UNVERIFIED PICKS WITH POTENTIAL NEW STATUS********")
             for p in unverifiedPick:
                 print("going through picks")
@@ -88,7 +60,8 @@ def verifyClicks():
                 if s not in over:
                     print("******GAME NOT OVER YET*******")
                     print(s)
-                    continue
+                    print(p[created].date())
+                    continue #won't create lib entry if game not over
 
                 # if the key doesn't exist find homers for that day
                 if p['created'].date() not in HOMERS:

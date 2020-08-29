@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Today's Picks{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>
+  Every pick made today
+    
+  {% if todayPicks is not defined %}
+  There have been no picks made today.
+
+  {% else %}
+
+  
+</p><br>
+<p>
+  <table style="width:75%">
+    <tr>
+      <th>User</th>
+      <th>Player</th>
+      <th>Click</th>
+    </tr>
+
+    {% for user, player, click in todayPicks %}
+    
+    <tr>
+      <td align="center"> {{ user }} </td>
+      <td align="center"> {{ player }} </td>
+      <td align="center"> {{ click }} </td>
+    </tr>
+    
+    {% endfor %}
+
+  </table> 
+
+  
+  <font size="2"><i> Note that None means the pick hasn't been checked, False means the pick was not a click and True means you got a click for that pick </i></font>
+
+  
+  
+</p>
+  {% endif %}
+
+
+{% endblock %}

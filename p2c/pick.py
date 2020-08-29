@@ -56,32 +56,46 @@ def leaderboard():
         for l in query:
             leaders.append((l['username'], l['score']))
     return render_template('pick/leaderboard.html', leaders=leaders)
-@bp.route('/myPick')
+
+@bp.route('/todaysPicks')
+def todaysPicks():
+    #(user, player, click) tuple
+    todayPicks = []
+    query = query_db('SELECT * FROM pick WHERE created >= CURRENT_DATE')
+    if query is not None:
+        for p in query:
+            todayPicks.append((p['username'], p['player'], p['click']))
+            
+    print(todayPicks)
+
+    return render_template('pick/todaysPicks.html', todayPicks = todayPicks)
+    
+
+
+
+@bp.route('/myPicks')
 @login_required
-def myPick():
+def myPicks():
     allPicks = []
     #list of all picks in a tuple of form (player, date, click)
     picksList = query_db(
         'SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],))
     recentPick = query_db('SELECT * FROM pick WHERE username = (%s) ORDER BY created DESC;', (g.user['username'],), True)
     if not recentPick:
-        return render_template('pick/myPick.html', lastPick="Nobody", time="Never", allPicks=[])
+        return render_template('pick/myPicks.html', lastPick="Nobody", time="Never", allPicks=[])
     #if recentPick isn't None we're gonna find all the picks they've made 
     for p in picksList:
         #print("player: {} created: {} click: {}".format(
          #   p['player'], p['created'].date(), p['click']))
         allPicks.append((p['player'], p['created'].date(), p['click']))
     if recentPick['click'] is None:
-        return render_template('pick/myPick.html',lastPick=recentPick['player'],
+        return render_template('pick/myPicks.html',lastPick=recentPick['player'],
                                time=recentPick['created'], allPicks=allPicks)
     else:
-        return render_template('pick/myPick.html',lastPick=recentPick['player'],
+        return render_template('pick/myPicks.html',lastPick=recentPick['player'],
                                time=recentPick['created'], verified=recentPick['click'], allPicks=allPicks)
     
 
-#@bp.route('/leaderboard')
-#def leaderboard():
-    #TODO make this a leaderboard page
     
 @bp.route('/scores')
 @login_required
